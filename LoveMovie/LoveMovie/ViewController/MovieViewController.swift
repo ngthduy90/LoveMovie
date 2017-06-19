@@ -20,6 +20,7 @@ class MovieViewController: UIViewController {
     
     fileprivate var isCollectionStyled = false
     fileprivate var movies: [MovieData] = []
+    fileprivate var selectedMovie: MovieData?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,15 +30,17 @@ class MovieViewController: UIViewController {
         refreshControl!.addTarget(self, action: #selector(fetchMovies), for: UIControlEvents.valueChanged)
         
         collectionView.insertSubview(refreshControl!, at: 0)
-        fetchMovies()
     }
     
     fileprivate var metadatas = [MovieCellStyle:MovieCellMetadata]()
     
     override func viewDidAppear(_ animated: Bool) {
+        
         generateMetadatas()
         cellMetadata = metadatas[.list]!
         isCollectionStyled = true
+        
+        fetchMovies()
         
     }
     
@@ -66,24 +69,31 @@ class MovieViewController: UIViewController {
         }
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        
+        let nextVC = segue.destination as! DetailMovieViewController
+        nextVC.movie = selectedMovie
+        
+        selectedMovie = nil
     }
-    */
+    
+    @IBOutlet weak var waitingView: UIView!
+    @IBOutlet weak var waitingIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var networkErrorView: UIView!
+    
+    @IBAction func tryAgain(_ sender: Any) {
+        hideNetworkError()
+        fetchMovies()
+    }
 
 }
 
 extension MovieViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //        let cell = collectionView.cellForItem(at: indexPath)
         
+        selectedMovie = self.movies[indexPath.row]
+        self.performSegue(withIdentifier: "DetailVCSegue", sender: nil)        
     }
 }
 
@@ -102,16 +112,16 @@ extension MovieViewController: UICollectionViewDataSource {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellMetadata.reuseId, for: indexPath)
         let movie = self.movies[indexPath.row]
-        let posterUrl = MovieEndpoints.imageUrl(from: movie.posterPath, withQuality: .medium)
         
         let movieCell = cell as! MovieCollectionViewCell
         movieCell.renderCell(at: indexPath)
         movieCell.displayData(movie)
         
-        if let imgUrl = posterUrl {
-            movieCell.imageView.setImageWith(imgUrl)
-
+        if let poster = movie.posterPath {
+            let posterUrl = MovieEndpoints.imageUrl(from: poster, withQuality: .medium)
+            movieCell.imageView.setImageWith(posterUrl!)
         }
+        
         return cell
     }
 }
@@ -153,7 +163,30 @@ extension MovieViewController {
                               forKey: MovieCellStyle.fitOne)
     }
     
+    fileprivate func showIndicator() {
+        self.view.bringSubview(toFront: self.waitingView)
+        self.collectionView.isHidden = true
+        self.waitingIndicator.startAnimating()
+    }
+    
+    fileprivate func hideIndicator() {
+        self.view.sendSubview(toBack: self.waitingView)
+        self.collectionView.isHidden = false
+        self.waitingIndicator.stopAnimating()
+    }
+    
+    fileprivate func showNetworkError() {
+        self.view.bringSubview(toFront: self.networkErrorView)
+        self.collectionView.isHidden = true
+    }
+    
+    fileprivate func hideNetworkError() {
+        self.view.sendSubview(toBack: self.networkErrorView)
+        self.collectionView.isHidden = false
+    }
+    
     func fetchMovies() {
+        showIndicator()
         
         Alamofire.request(MovieEndpoints.nowPlaying, method: .get).validate().responseJSON { response in
             
@@ -162,12 +195,14 @@ extension MovieViewController {
             case .success(let value):
                 let results = JSON(value)["results"]
                 self.movies = MovieServices.parseMovieResult(results)
+                self.collectionView.reloadData()
                 
-            case .failure(let error):
-                print(error)
+            case .failure( _):
+                self.showNetworkError()
             }
             
             self.refreshControl?.endRefreshing()
+            self.hideIndicator()
         }
     }
 }

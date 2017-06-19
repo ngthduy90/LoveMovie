@@ -17,8 +17,8 @@ class MovieData {
     var overView = ""
     
     var releaseDate = ""
-    var backdropPath = ""
-    var posterPath = ""
+    var backdropPath: String?
+    var posterPath: String?
     
     private init() {}
     
@@ -32,9 +32,10 @@ class MovieData {
         self.vote = movieRecord["vote_average"].float!
         self.title = movieRecord["title"].string!
         self.overView = movieRecord["overview"].string!
-        self.posterPath = movieRecord["poster_path"].string!
         self.releaseDate = movieRecord["release_date"].string!
-        self.backdropPath = movieRecord["backdrop_path"].string!
+        
+        self.backdropPath = movieRecord["backdrop_path"].string
+        self.posterPath = movieRecord["poster_path"].string
     }
     
 }
