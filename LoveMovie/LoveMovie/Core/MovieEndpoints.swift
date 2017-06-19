@@ -27,6 +27,12 @@ class MovieEndpoints {
         }
     }
     
+    static var topRated: String {
+        get {
+            return "\(movieBaseUrl)/top_rated?api_key=\(apiKey)"
+        }
+    }
+    
     static func imageUrl(from imgId: String, withQuality imgQuality: ImageQuality) -> URL? {
         return URL(string: "\(imageBaseUrl)\(imgQuality.rawValue)\(imgId)")
     }

@@ -22,7 +22,7 @@ class MovieCellServices {
         
         let contentInsets = UIEdgeInsets(top: DefaultMargin,
                                          left: DefaultMargin - 1.0,
-                                         bottom: DefaultMargin,
+                                         bottom: DefaultMargin + 60.0,
                                          right: DefaultMargin - 1.0)
         
         let contentSize = CGSize(width: collectionSize.width + 2.0 - (DefaultMargin * 2),
@@ -35,7 +35,11 @@ class MovieCellServices {
     
     static func createFitStyleCellMetadata(sizeOf collectionSize: CGSize) -> MovieCellMetadata {
         
-        let cellMetadata = MovieCellMetadata(size: collectionSize, insets: .zero, minimumSpacing: 0.0)
+        let cellSize = CGSize(width: collectionSize.width, height: collectionSize.height - 60.0)
+        var contentInsets: UIEdgeInsets = .zero
+        contentInsets.bottom = 60.0
+        
+        let cellMetadata = MovieCellMetadata(size: cellSize, insets: contentInsets, minimumSpacing: 0.0)
         cellMetadata.isPaging = true
         cellMetadata.style = .fitOne
         

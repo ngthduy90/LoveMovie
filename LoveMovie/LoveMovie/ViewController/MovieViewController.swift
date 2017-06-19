@@ -15,16 +15,22 @@ import AFNetworking
 class MovieViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var categoryTabBar: UITabBar!
     
     fileprivate var refreshControl: UIRefreshControl?
     
     fileprivate var isCollectionStyled = false
     fileprivate var movies: [MovieData] = []
     fileprivate var selectedMovie: MovieData?
+    fileprivate var selectedEndpoint: String!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
+        
+        self.categoryTabBar.delegate = self
+        self.selectedEndpoint = MovieEndpoints.nowPlaying
+        self.categoryTabBar.selectedItem = self.categoryTabBar.items?.first
         
         refreshControl = UIRefreshControl()
         refreshControl!.addTarget(self, action: #selector(fetchMovies), for: UIControlEvents.valueChanged)
@@ -86,6 +92,26 @@ class MovieViewController: UIViewController {
         fetchMovies()
     }
 
+}
+
+enum MovieCategoryType: Int {
+    case nowPlaying = 0, topRated
+}
+
+extension MovieViewController: UITabBarDelegate {
+    
+    func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        
+        switch item.tag {
+        case MovieCategoryType.topRated.rawValue:
+            self.selectedEndpoint = MovieEndpoints.topRated
+            
+        default:
+            self.selectedEndpoint = MovieEndpoints.nowPlaying
+        }
+        
+        fetchMovies()
+    }
 }
 
 extension MovieViewController: UICollectionViewDelegate {
@@ -188,7 +214,7 @@ extension MovieViewController {
     func fetchMovies() {
         showIndicator()
         
-        Alamofire.request(MovieEndpoints.nowPlaying, method: .get).validate().responseJSON { response in
+        Alamofire.request(self.selectedEndpoint, method: .get).validate().responseJSON { response in
             
             switch response.result {
                 
