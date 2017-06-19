@@ -34,6 +34,8 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
+<img src='https://github.com/ngthduy90/LoveMovie/blob/master/walkthrough.gif' title='Walkthrough' width='' alt='Walkthrough' />
+
 ## Notes
 
 Describe any challenges encountered while building the app.
