@@ -34,7 +34,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='https://github.com/ngthduy90/LoveMovie/blob/master/walkthrought.gif?raw=true' title='Walkthrough' width='' alt='Walkthrough' />
+<img src='https://github.com/ngthduy90/LoveMovie/blob/master/walkthrough.gif?raw=true' title='Walkthrough' width='' alt='Walkthrough' />
 
 ## Notes
 
